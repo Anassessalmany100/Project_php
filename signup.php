@@ -60,26 +60,64 @@
 <?php
 require("db.php");
 session_start();
-if (isset($_POST["name"]) && isset($_POST["username"]) && isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["repeat_password"])) {
-  if ($_POST["password"] !== $_POST["repeat_password"]) {
-    echo "<script>alert ('password incorrect');</script> ";
-  } else {
-    $name = $_POST["name"];
-    $username = $_POST["username"];
-    $email = $_POST["email"];
-    $password = $_POST["password"];
-    $password1 = $_POST["repeat_password"];
-    $stmt = $db->prepare("INSERT INTO users(name, username, email, password) VALUES (:n, :u, :e, :p)");
-    $user = $stmt->execute([
-      ':n' => $name,
-      ':u' => $username,
-      ':e' => $email,
-      ':p' => $password
+
+if (isset($_POST["signup"])) {
+  $name = trim($_POST["name"]);
+  $username = trim($_POST["username"]);
+  $email = trim($_POST["email"]);
+  $password = $_POST["password"];
+  $repeat_password = $_POST["repeat_password"];
+
+  $name_regex = "/^[a-zA-ZÀ-ÿ\s]{2,}$/";
+  $username_regex = "/^[a-zA-Z0-9_]{3,}$/";
+  $email_regex = "/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/";
+  $password_regex = "/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/";
+
+  if (empty($name) || empty($username) || empty($email) || empty($password) || empty($repeat_password)) {
+    echo "<script>alert('Tous les champs sont obligatoires');</script>";
+  }
+  elseif (!preg_match($name_regex, $name)) {
+    echo "<script>alert('Le nom n\'est pas valide');</script>";
+  }
+  elseif (!preg_match($username_regex, $username)) {
+    echo "<script>alert('Le nom d\'utilisateur doit contenir au moins 3 caractères ');</script>";
+  }
+  elseif (!preg_match($email_regex, $email)) {
+    echo "<script>alert('Adresse email invalide');</script>";
+  }
+  elseif ($password !== $repeat_password) {
+    echo "<script>alert('Les mots de passe ne correspondent pas');</script>";
+  }
+  elseif (!preg_match($password_regex, $password)) {
+    echo "<script>alert('Le mot de passe doit contenir au moins 8 caractères avec lettres et chiffres');</script>";
+  } 
+  else {
+    $check_stmt = $db->prepare("SELECT * FROM users WHERE email = :email OR username = :username");
+    $check_stmt->execute([
+      ':email' => $email,
+      ':username' => $username
     ]);
-    echo "<script>alert('inscription succé')</script>";
-    
+    if ($check_stmt->rowCount() > 0) {
+      echo "<script>alert('email ou le nom d\'utilisateur existe déjà');</script>";
+    } else {
+      $stmt = $db->prepare("INSERT INTO users(name, username, email, password) VALUES (:n, :u, :e, :p)");
+      $user = $stmt->execute([
+        ':n' => $name,
+        ':u' => $username,
+        ':e' => $email,
+        ':p' => $password 
+      ]);
+      if ($user) {
+        echo "<script>alert('Inscription réussie');</script>";
+        echo "<script>window.location.href = 'login.php';</script>";
+        exit;
+      } else {
+        echo "<script>alert('Une erreur est survenue lors de l\'inscription');</script>";
+      }
+    }
   }
 }
+
 if (isset($_POST["login"])) {
   header("Location: login.php");
   exit;

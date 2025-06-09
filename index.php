@@ -8,7 +8,7 @@
 <body>
   <?php
   session_start();
-  echo "<h1> hiiiii" .$_SESSION["name"] ."</h1>";
+  echo "<h1> hiiiii  " .$_SESSION["name"] ."</h1>";
   ?>
 </body>
 </html>
