@@ -77,3 +77,18 @@ button[name="login"] {
 button[name="login"]:hover {
   background-color: #5a6268;
 }
+h2 {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  color: #2d2d2d;
+  letter-spacing: 1px;
+}
+
+#signup p {
+  margin-top: 0;
+  margin-bottom: 18px;
+  color: #5a5a5a;
+  font-size: 1.05rem;
+  letter-spacing: 0.2px;
+}
