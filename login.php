@@ -10,17 +10,26 @@
 </head>
 
 <body>
-  <div id="login">
-    <form action="" method="post">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="Enter your Email" >
-
-      <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your Password" >
-
-      <input type="submit" value="Log in">
-      <button name="signup" >Sign Up</button>
-    </form>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="logo"><img src="img/img_logo/1.png" alt=""></div>
+      <h2>Library Management System</h2>
+      <p>Sign in to your administrator account</p>
+      <form method="post">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="Enter your email" required />
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter your password" required />
+        <div class="options">
+          <label><input type="checkbox" /> Remember me</label>
+          <a href="#">Forgot your password?</a>
+        </div>
+        <button type="submit" name="login">Sign in</button><br><br>
+      </form>
+      <form method="post" style="margin-top:10px;">
+        <button name="signup" id="SignUp">Sign Up</button>
+      </form>
+    </div>
   </div>
 </body>
 
@@ -55,5 +64,4 @@ if ($user && $password===$user['password']){
 }else if(isset($_POST["login"])&& !($user && $password===$user['password'])){
   echo "<script>alert('user not found')</script>";
 }
-
 ?>
