@@ -6,11 +6,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sign Up</title>
-  <link rel="stylesheet" href="signup.css" />
+  <link rel="stylesheet" href="css/signup.css" />
+  <style>
+    .logo{
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.logo img {
+  width: 90%;
+  height: 90%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+  </style>
 </head>
 
 <body>
   <div id="signup">
+    <div class="logo"><img src="img/img_logo/1.png" alt=""></div>
+      <h2>Library Management System</h2>
+      <p>Create an account to access the library</p>
     <form action="" method="post">
       <label for="name">Name</label>
       <input type="text" name="name" id="name" placeholder="Enter your Name">
