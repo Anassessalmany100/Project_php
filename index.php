@@ -1,406 +1,1089 @@
 <?php
-require_once 'includes/auth.php';
-require_once 'includes/data.php';
-
-$user = getCurrentUser();
-$stats = getDashboardStats();
-$books = getRecentBooks();
-$activities = getRecentActivity();
-$notifications = getNotifications();
-$unreadCount = count(array_filter($notifications, function($n) { return !$n['read']; }));
-?>
-
+session_start();
+if (empty($_SESSION["username"])){
+  header("location:login.php");
+  exit;}
+  ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Management System - Dashboard</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e40af'><path d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/></svg>">
+    <title>BookHaven - Buy and Rent Books Online</title>
+    
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#2C3E50',secondary:'#E74C3C'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="stylesheet" href="style.css">
+
+       
 </head>
-<body>
-    <div class="app-layout">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <div class="logo-icon">LM</div>
-                    <div class="logo-text">LibraryMS</div>
+<body class="bg-gray-50">
+    <!-- Header Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="#" class="text-2xl font-['Pacifico'] text-primary">BookHaven</a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden md:flex items-center space-x-6">
+                <a href="#" class="text-primary font-medium">Home</a>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">Browse Books</a>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">New Arrivals</a>
+                <a href="#" class="text-gray-600 hover:text-primary transition-colors">Bestsellers</a>
+            </nav>
+            
+            <!-- Search Bar -->
+            <div class="hidden md:flex relative w-1/3">
+                <input type="text" placeholder="Search for books, authors..." class="w-full py-2 px-4 pr-10 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                <div class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400">
+                    <i class="ri-search-line"></i>
                 </div>
             </div>
             
-            <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <div class="nav-section-title">Main</div>
-                    <a href="index.php" class="nav-item active">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
-                        </svg>
-                        Dashboard
-                    </a>
-                    <a href="books.php" class="nav-item">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z"/>
-                        </svg>
-                        Books
-                    </a>
-                    <?php if (in_array($user['role'], ['admin', 'librarian'])): ?>
-                    <a href="users.php" class="nav-item">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
-                        </svg>
-                        Users
-                    </a>
-                    <?php endif; ?>
-                </div>
+            <!-- User Actions -->
+            <div class="flex items-center space-x-4">
+                <a href="#" class="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors">
+                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                        <i class="ri-heart-line"></i>
+                    </div>
+                    <span>Wishlist</span>
+                </a>
+                <a href="#" class="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors">
+                    <div class="w-5 h-5 flex items-center justify-center mr-1">
+                        <i class="ri-shopping-cart-line"></i>
+                    </div>
+                    <span>Cart</span>
+                </a>
                 
-                <div class="nav-section">
-                    <div class="nav-section-title">Manage</div>
-                    <a href="reservations.php" class="nav-item">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0V6a2 2 0 012-2h4a2 2 0 012 2v1m-6 0h8m-8 0H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-1"/>
-                        </svg>
-                        Reservations
-                    </a>
-                    <?php if (in_array($user['role'], ['admin', 'librarian'])): ?>
-                    <a href="analytics.php" class="nav-item">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                        Analytics
-                    </a>
-                    <a href="reports.php" class="nav-item">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                        Reports
-                    </a>
-                    <?php endif; ?>
-                </div>
+                <!-- Login/Profile Button 
+                <div class="relative" id="profileDropdown">
+                    <button id="profileButton" class="flex items-center space-x-1 text-gray-600 hover:text-primary transition-colors">
+                        <div class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full">
+                            <i class="ri-user-line"></i>
+                        </div>
+                        <span class="hidden md:inline">Account</span>
+                        <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-arrow-down-s-line"></i>
+                        </div>
+                    </button>               
+                    Profile Dropdown 
+                    <div id="profileMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden">
+                        <div id="loggedOutMenu">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openModal('loginModal')">Login</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openModal('registerModal')">Register</a>
+                        </div>
+                        <div id="loggedInMenu" class="hidden">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Orders</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                            <div class="border-t border-gray-100"></div>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="logoutButton">Logout</a>
+                        </div>
+                    </div>
+                </div> -->
                 
-                <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
-                    <a href="settings.php" class="nav-item">
-                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                        Settings
-                    </a>
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuButton" class="md:hidden w-10 h-10 flex items-center justify-center text-gray-600">
+                    <i class="ri-menu-line text-xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Search and Navigation -->
+        <div id="mobileMenu" class="md:hidden hidden px-4 py-3 bg-white border-t border-gray-100">
+            <div class="relative mb-3">
+                <input type="text" placeholder="Search for books, authors..." class="w-full py-2 px-4 pr-10 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                <div class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400">
+                    <i class="ri-search-line"></i>
                 </div>
+            </div>
+            <nav class="flex flex-col space-y-3">
+                <a href="#" class="text-primary font-medium">Home</a>
+                <a href="#" class="text-gray-600">Browse Books</a>
+                <a href="#" class="text-gray-600">New Arrivals</a>
+                <a href="#" class="text-gray-600">Bestsellers</a>
+                <a href="#" class="text-gray-600 flex items-center">
+                    <div class="w-5 h-5 flex items-center justify-center mr-2">
+                        <i class="ri-heart-line"></i>
+                    </div>
+                    <span>Wishlist</span>
+                </a>
+                <a href="#" class="text-gray-600 flex items-center">
+                    <div class="w-5 h-5 flex items-center justify-center mr-2">
+                        <i class="ri-shopping-cart-line"></i>
+                    </div>
+                    <span>Cart</span>
+                </a>
             </nav>
-        </aside>
+        </div>
+    </header>
 
-        <!-- Main Content -->
-        <main class="main-content" id="mainContent">
-            <!-- Top Navigation -->
-            <header class="top-nav">
-                <div class="nav-left">
-                    <button class="menu-toggle" id="menuToggle">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
+    <!-- Hero Section -->
+    <section class="hero-section text-white">
+        <div class="container mx-auto px-4 py-16 md:py-24">
+            <div class="max-w-2xl">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Discover Your Next Favorite Book</h1>
+                <p class="text-lg mb-8">Buy or rent from our vast collection of books. Enjoy reading without breaking the bank.</p>
+                <div class="flex flex-wrap gap-3">
+                    <button class="bg-secondary hover:bg-secondary/90 text-white px-6 py-3 rounded-button font-medium transition-colors whitespace-nowrap">
+                        Browse Collection
                     </button>
-                    
-                    <div class="search-bar">
-                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        <input type="text" class="search-input" placeholder="Search books, authors, or users...">
+                    <button class="bg-white hover:bg-gray-100 text-primary px-6 py-3 rounded-button font-medium transition-colors whitespace-nowrap">
+                        How It Works
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Category Filters -->
+    <section class="bg-white py-8 border-b">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap justify-center gap-4">
+                <button class="px-6 py-2 bg-primary text-white rounded-full font-medium transition-colors hover:bg-primary/90 whitespace-nowrap">All Books</button>
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-full font-medium transition-colors hover:bg-gray-200 whitespace-nowrap">Buy</button>
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-full font-medium transition-colors hover:bg-gray-200 whitespace-nowrap">Rent</button>
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-full font-medium transition-colors hover:bg-gray-200 whitespace-nowrap">New Arrivals</button>
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-full font-medium transition-colors hover:bg-gray-200 whitespace-nowrap">Bestsellers</button>
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-full font-medium transition-colors hover:bg-gray-200 whitespace-nowrap">Fiction</button>
+                <button class="px-6 py-2 bg-gray-100 text-gray-700 rounded-full font-medium transition-colors hover:bg-gray-200 whitespace-nowrap">Non-Fiction</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Books -->
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold">Featured Books</h2>
+                <a href="#" class="text-primary hover:underline flex items-center">
+                    <span>View All</span>
+                    <div class="w-5 h-5 flex items-center justify-center ml-1">
+                        <i class="ri-arrow-right-line"></i>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Book Card 1 -->
+                <div class="book-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+                    <div class="relative">
+                        <img src="img/The Midnight Library.jpg" alt="The Midnight Library" class="w-full h-64 object-cover object-top">
+                        <button class="wishlist-heart absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-gray-600 hover:text-secondary">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-medium text-lg line-clamp-1">The Midnight Library</h3>
+                            <span class="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">Bestseller</span>
+                        </div>
+                        <p class="text-gray-600 mb-2">Matt Haig</p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-half-fill"></i>
+                            </div>
+                            <span class="text-gray-500 text-sm ml-1">(487)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-bold">$15.99</p>
+                                <p class="text-gray-500 text-sm">Rent: $4.99/month</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-primary hover:bg-gray-200 transition-colors">
+                                    <i class="ri-shopping-cart-line"></i>
+                                </button>
+                                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-button transition-colors whitespace-nowrap">Buy Now</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="nav-right">
-                    <button class="notification-btn">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-4.5-4.5M19 12H5m0 0l4.5-4.5M5 12l4.5 4.5"/>
-                        </svg>
-                        <?php if ($unreadCount > 0): ?>
-                        <span class="notification-badge"><?php echo $unreadCount; ?></span>
-                        <?php endif; ?>
-                    </button>
-                    
-                    <div class="user-profile">
-                        <img src="<?php echo htmlspecialchars($user['avatar']); ?>" alt="User Avatar" class="user-avatar">
-                        <div class="user-info">
-                            <div class="user-name"><?php echo htmlspecialchars($user['name']); ?></div>
-                            <div class="user-role"><?php echo htmlspecialchars($user['role']); ?></div>
-                        </div>
+                <!-- Book Card 2 -->
+                <div class="book-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+                    <div class="relative">
+                        <img src="img/Atomic Habits.jpg" alt="Atomic Habits" class="w-full h-64 object-cover object-top">
+                        <button class="wishlist-heart absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-gray-600 hover:text-secondary">
+                            <i class="ri-heart-line"></i>
+                        </button>
                     </div>
-                </div>
-            </header>
-
-            <!-- Dashboard Content -->
-            <div class="dashboard-content">
-                <div class="page-header">
-                    <h1 class="page-title">Dashboard</h1>
-                    <p class="page-subtitle">Welcome back, <?php echo htmlspecialchars($user['name']); ?>! Here's what's happening in your library today.</p>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="quick-actions">
-                    <a href="books.php?action=add" class="quick-action-btn">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                        </svg>
-                        Add Book
-                    </a>
-                    <a href="users.php?action=add" class="quick-action-btn">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                        </svg>
-                        Add Member
-                    </a>
-                    <a href="reports.php" class="quick-action-btn">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6M9 3h6a2 2 0 012 2v14a2 2 0 01-2 2H9a2 2 0 01-2-2V5a2 2 0 012-2z"/>
-                        </svg>
-                        Generate Report
-                    </a>
-                </div>
-
-                <!-- Statistics Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon blue">
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z"/>
-                            </svg>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-medium text-lg line-clamp-1">Atomic Habits</h3>
+                            <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">New</span>
                         </div>
-                        <div class="stat-value"><?php echo number_format($stats['total_books']); ?></div>
-                        <div class="stat-label">Total Books</div>
-                        <div class="stat-change positive">+12% from last month</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon green">
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div class="stat-value"><?php echo number_format($stats['available_books']); ?></div>
-                        <div class="stat-label">Available Books</div>
-                        <div class="stat-change positive">+5% from last week</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon yellow">
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
-                            </svg>
-                        </div>
-                        <div class="stat-value"><?php echo number_format($stats['total_users']); ?></div>
-                        <div class="stat-label">Total Members</div>
-                        <div class="stat-change positive">+<?php echo $stats['new_members_month']; ?> this month</div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon red">
-                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div class="stat-value"><?php echo number_format($stats['overdue_books']); ?></div>
-                        <div class="stat-label">Overdue Books</div>
-                        <div class="stat-change negative">Needs attention</div>
-                    </div>
-                </div>
-
-                <!-- Content Grid -->
-                <div class="content-grid">
-                    <!-- Recent Books -->
-                    <div class="books-section">
-                        <div class="section-header">
-                            <h2 class="section-title">Recent Books</h2>
-                            <a href="books.php" class="view-all-btn">View All</a>
-                        </div>
-                        
-                        <div class="books-grid">
-                            <?php foreach ($books as $book): ?>
-                            <div class="book-card fade-in">
-                                <img src="<?php echo htmlspecialchars($book['cover']); ?>" alt="<?php echo htmlspecialchars($book['title']); ?>" class="book-cover">
-                                <div class="book-info">
-                                    <h3 class="book-title"><?php echo htmlspecialchars($book['title']); ?></h3>
-                                    <p class="book-author">by <?php echo htmlspecialchars($book['author']); ?></p>
-                                    
-                                    <div class="book-meta">
-                                        <div class="book-rating">
-                                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                            </svg>
-                                            <?php echo $book['rating']; ?>
-                                        </div>
-                                        <span class="book-status <?php echo $book['status']; ?>">
-                                            <?php echo ucfirst($book['status']); ?>
-                                        </span>
-                                    </div>
-                                    
-                                    <?php if (isset($book['due_date']) && $book['status'] === 'borrowed'): ?>
-                                    <p style="font-size: 12px; color: var(--gray-600); margin-bottom: 8px;">
-                                        Due: <?php echo date('M j, Y', strtotime($book['due_date'])); ?>
-                                    </p>
-                                    <?php endif; ?>
-                                    
-                                    <div class="book-actions">
-                                        <?php if ($book['status'] === 'available'): ?>
-                                        <button class="btn btn-primary">
-                                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z"/>
-                                            </svg>
-                                            Borrow
-                                        </button>
-                                        <?php elseif ($book['status'] === 'borrowed'): ?>
-                                        <button class="btn btn-success">
-                                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            Return
-                                        </button>
-                                        <?php endif; ?>
-                                        
-                                        <button class="btn btn-outline">
-                                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                            View
-                                        </button>
-                                    </div>
-                                </div>
+                        <p class="text-gray-600 mb-2">James Clear</p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
                             </div>
-                            <?php endforeach; ?>
+                            <span class="text-gray-500 text-sm ml-1">(1,243)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-bold">$18.99</p>
+                                <p class="text-gray-500 text-sm">Rent: $5.99/month</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-primary hover:bg-gray-200 transition-colors">
+                                    <i class="ri-shopping-cart-line"></i>
+                                </button>
+                                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-button transition-colors whitespace-nowrap">Buy Now</button>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Recent Activity -->
-                    <div class="activity-section">
-                        <div class="section-header">
-                            <h2 class="section-title">Recent Activity</h2>
-                            <a href="activity.php" class="view-all-btn">View All</a>
+                </div>
+                
+                <!-- Book Card 3 -->
+                <div class="book-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+                    <div class="relative">
+                        <img src="img/Educated.jpg" alt="Educated" class="w-full h-64 object-cover object-top">
+                        <button class="wishlist-heart absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-gray-600 hover:text-secondary">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-medium text-lg line-clamp-1">Educated</h3>
                         </div>
-                        
-                        <div class="activity-list">
-                            <?php foreach ($activities as $activity): ?>
-                            <div class="activity-item fade-in">
-                                <div class="activity-icon <?php echo $activity['type']; ?>">
-                                    <?php if ($activity['type'] === 'borrow'): ?>
-                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253z"/>
-                                    </svg>
-                                    <?php elseif ($activity['type'] === 'return'): ?>
-                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <?php elseif ($activity['type'] === 'new_member'): ?>
-                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-                                    </svg>
-                                    <?php else: ?>
-                                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="activity-content">
-                                    <div class="activity-description">
-                                        <strong><?php echo htmlspecialchars($activity['user']); ?></strong>
-                                        <?php echo htmlspecialchars($activity['description']); ?>
-                                    </div>
-                                    <div class="activity-time"><?php echo htmlspecialchars($activity['timestamp']); ?></div>
-                                </div>
+                        <p class="text-gray-600 mb-2">Tara Westover</p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-line"></i>
                             </div>
-                            <?php endforeach; ?>
+                            <span class="text-gray-500 text-sm ml-1">(892)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-bold">$14.50</p>
+                                <p class="text-gray-500 text-sm">Rent: $3.99/month</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-primary hover:bg-gray-200 transition-colors">
+                                    <i class="ri-shopping-cart-line"></i>
+                                </button>
+                                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-button transition-colors whitespace-nowrap">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Book Card 4 -->
+                <div class="book-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+                    <div class="relative">
+                        <img src="img/Where the Crawdads Sing.jpg" alt="Where the Crawdads Sing" class="w-full h-64 object-cover object-top">
+                        <button class="wishlist-heart absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-gray-600 hover:text-secondary">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-medium text-lg line-clamp-1">Where the Crawdads Sing</h3>
+                        </div>
+                        <p class="text-gray-600 mb-2">Delia Owens</p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-half-fill"></i>
+                            </div>
+                            <span class="text-gray-500 text-sm ml-1">(1,056)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-bold">$16.99</p>
+                                <p class="text-gray-500 text-sm">Rent: $4.99/month</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-primary hover:bg-gray-200 transition-colors">
+                                    <i class="ri-shopping-cart-line"></i>
+                                </button>
+                                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-button transition-colors whitespace-nowrap">Buy Now</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+    </section>
+
+    <!-- New Arrivals -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold">New Arrivals</h2>
+                <a href="#" class="text-primary hover:underline flex items-center">
+                    <span>View All</span>
+                    <div class="w-5 h-5 flex items-center justify-center ml-1">
+                        <i class="ri-arrow-right-line"></i>
+                    </div>
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Book Card 1 -->
+                <div class="book-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+                    <div class="relative">
+                        <img src="img/The Invisible Life of Addie LaRue.jpg" alt="The Invisible Life of Addie LaRue" class="w-full h-64 object-cover object-top">
+                        <button class="wishlist-heart absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-gray-600 hover:text-secondary">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-medium text-lg line-clamp-1">The Invisible Life of Addie LaRue</h3>
+                            <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">New</span>
+                        </div>
+                        <p class="text-gray-600 mb-2">V.E. Schwab</p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-half-fill"></i>
+                            </div>
+                            <span class="text-gray-500 text-sm ml-1">(723)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-bold">$19.99</p>
+                                <p class="text-gray-500 text-sm">Rent: $5.99/month</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-primary hover:bg-gray-200 transition-colors">
+                                    <i class="ri-shopping-cart-line"></i>
+                                </button>
+                                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-button transition-colors whitespace-nowrap">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Book Card 2 -->
+                <div class="book-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+                    <div class="relative">
+                        <img src="img/Project Hail Mary.jpg" alt="Project Hail Mary" class="w-full h-64 object-cover object-top">
+                        <button class="wishlist-heart absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-gray-600 hover:text-secondary">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-medium text-lg line-clamp-1">Project Hail Mary</h3>
+                            <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">New</span>
+                        </div>
+                        <p class="text-gray-600 mb-2">Andy Weir</p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <span class="text-gray-500 text-sm ml-1">(512)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-bold">$21.99</p>
+                                <p class="text-gray-500 text-sm">Rent: $6.99/month</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-primary hover:bg-gray-200 transition-colors">
+                                    <i class="ri-shopping-cart-line"></i>
+                                </button>
+                                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-button transition-colors whitespace-nowrap">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Book Card 3 -->
+                <div class="book-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+                    <div class="relative">
+                        <img src="img/Klara and the Sun.jpg" alt="Klara and the Sun" class="w-full h-64 object-cover object-top">
+                        <button class="wishlist-heart absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-gray-600 hover:text-secondary">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-medium text-lg line-clamp-1">Klara and the Sun</h3>
+                            <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">New</span>
+                        </div>
+                        <p class="text-gray-600 mb-2">Kazuo Ishiguro</p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-line"></i>
+                            </div>
+                            <span class="text-gray-500 text-sm ml-1">(347)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-bold">$17.99</p>
+                                <p class="text-gray-500 text-sm">Rent: $4.99/month</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-primary hover:bg-gray-200 transition-colors">
+                                    <i class="ri-shopping-cart-line"></i>
+                                </button>
+                                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-button transition-colors whitespace-nowrap">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Book Card 4 -->
+                <div class="book-card bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md">
+                    <div class="relative">
+                        <img src="img/The Four Winds.jpg" alt="The Four Winds" class="w-full h-64 object-cover object-top">
+                        <button class="wishlist-heart absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-full text-gray-600 hover:text-secondary">
+                            <i class="ri-heart-line"></i>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-medium text-lg line-clamp-1">The Four Winds</h3>
+                            <span class="bg-secondary/10 text-secondary text-xs px-2 py-1 rounded-full">New</span>
+                        </div>
+                        <p class="text-gray-600 mb-2">Kristin Hannah</p>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-half-fill"></i>
+                            </div>
+                            <span class="text-gray-500 text-sm ml-1">(629)</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-bold">$18.50</p>
+                                <p class="text-gray-500 text-sm">Rent: $5.50/month</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-full text-primary hover:bg-gray-200 transition-colors">
+                                    <i class="ri-shopping-cart-line"></i>
+                                </button>
+                                <button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-button transition-colors whitespace-nowrap">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">How BookHaven Works</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Discover the easiest way to buy or rent your favorite books online. Our process is simple and designed with readers in mind.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <div class="w-10 h-10 flex items-center justify-center text-primary text-2xl">
+                            <i class="ri-search-line"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Browse & Discover</h3>
+                    <p class="text-gray-600">Explore our vast collection of books across various genres. Use filters to find exactly what you're looking for.</p>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <div class="w-10 h-10 flex items-center justify-center text-primary text-2xl">
+                            <i class="ri-shopping-cart-line"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Choose Your Option</h3>
+                    <p class="text-gray-600">Decide whether you want to buy the book permanently or rent it for a specific period at a lower cost.</p>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <div class="w-10 h-10 flex items-center justify-center text-primary text-2xl">
+                            <i class="ri-book-open-line"></i>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Enjoy Reading</h3>
+                    <p class="text-gray-600">Receive your books quickly and dive into your reading adventure. Return rentals easily when you're done.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">What Our Readers Say</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Thousands of book lovers trust BookHaven for their reading needs. Here's what some of them have to say.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <div class="flex text-yellow-400 mb-4">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6">"J'adore l'option de location ! En tant que stagiaire à l'OFPPT Fès (Liste Al Addarissa), cela m'aide vraiment à économiser sur les manuels scolaires et les romans pour mes cours de littérature. Le processus est simple et les livres arrivent toujours en parfait état."</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mr-4">
+                            <div class="w-6 h-6 flex items-center justify-center text-gray-500">
+                                <i class="ri-user-line"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium">El Mostafa Belayd</h4>
+                            <p class="text-gray-500 text-sm">OFPPT ,student fes</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Testimonial 2 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <div class="flex text-yellow-400 mb-4">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6">"BookHaven has transformed how I build my home library. The prices are competitive, shipping is fast, and their wishlist feature helps me keep track of all the books I want to read next."</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mr-4">
+                            <div class="w-6 h-6 flex items-center justify-center text-gray-500">
+                                <i class="ri-user-line"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium">Wanelou</h4>
+                            <p class="text-gray-500 text-sm">OFPPT ,student fes</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Testimonial 3 -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <div class="flex text-yellow-400 mb-4">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-half-fill"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6">"As a parent, I appreciate how easy BookHaven makes it to find age-appropriate books for my children. The detailed descriptions and reviews help me make informed choices, and the kids love the books!"</p>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mr-4">
+                            <div class="w-6 h-6 flex items-center justify-center text-gray-500">
+                                <i class="ri-user-line"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium">anass es-salmany</h4>
+                            <p class="text-gray-500 text-sm">OFPPT ,student fes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-16 bg-primary text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Join Our Book Lovers Community</h2>
+                <p class="mb-8">Subscribe to our newsletter and be the first to know about new releases, exclusive deals, and reading recommendations.</p>
+                <div class="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+                    <input type="email" placeholder="Your email address" class="flex-grow py-3 px-4 rounded-button border-none focus:outline-none focus:ring-2 focus:ring-white/30 text-gray-800">
+                    <button class="bg-secondary hover:bg-secondary/90 text-white py-3 px-6 rounded-button font-medium transition-colors whitespace-nowrap">Subscribe</button>
+                </div>
+                <p class="text-sm mt-4 text-white/80">We respect your privacy. Unsubscribe at any time.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white pt-12 pb-6">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <!-- Company Info -->
+                <div>
+                    <h3 class="text-xl font-['Pacifico'] mb-4">BookHaven</h3>
+                    <p class="text-gray-400 mb-4">Your one-stop destination for buying and renting books online. Discover, read, and share the joy of literature.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <div class="w-8 h-8 flex items-center justify-center">
+                                <i class="ri-facebook-fill"></i>
+                            </div>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <div class="w-8 h-8 flex items-center justify-center">
+                                <i class="ri-twitter-x-fill"></i>
+                            </div>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <div class="w-8 h-8 flex items-center justify-center">
+                                <i class="ri-instagram-fill"></i>
+                            </div>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <div class="w-8 h-8 flex items-center justify-center">
+                                <i class="ri-pinterest-fill"></i>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Browse Books</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">New Arrivals</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Bestsellers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Rental Program</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Gift Cards</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Customer Service -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Customer Service</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">My Account</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Track Orders</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Shipping Policy</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Returns & Refunds</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Contact Us</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2 mt-1 text-gray-400">
+                                <i class="ri-map-pin-line"></i>
+                            </div>
+                            <span class="text-gray-400">123 Book Street, Reading City, RC 12345, USA</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2 text-gray-400">
+                                <i class="ri-phone-line"></i>
+                            </div>
+                            <span class="text-gray-400">(123) 456-7890</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2 text-gray-400">
+                                <i class="ri-mail-line"></i>
+                            </div>
+                            <span class="text-gray-400">support@bookhaven.com</span>
+                        </li>
+                        <li class="flex items-center">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2 text-gray-400">
+                                <i class="ri-time-line"></i>
+                            </div>
+                            <span class="text-gray-400">Mon-Fri: 9AM - 6PM</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-6 mt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 text-sm mb-4 md:mb-0">&copy; 2025 BookHaven. All rights reserved.</p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Privacy Policy</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Terms of Service</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Accessibility</a>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-5 flex items-center justify-center text-gray-400">
+                                <i class="ri-visa-fill"></i>
+                            </div>
+                            <div class="w-8 h-5 flex items-center justify-center text-gray-400">
+                                <i class="ri-mastercard-fill"></i>
+                            </div>
+                            <div class="w-8 h-5 flex items-center justify-center text-gray-400">
+                                <i class="ri-paypal-fill"></i>
+                            </div>
+                            <div class="w-8 h-5 flex items-center justify-center text-gray-400">
+                                <i class="ri-apple-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold">Login to Your Account</h3>
+                <button class="text-gray-500 hover:text-gray-700" onclick="closeModal('loginModal')">
+                    <div class="w-6 h-6 flex items-center justify-center">
+                        <i class="ri-close-line"></i>
+                    </div>
+                </button>
+            </div>
+            <div class="p-6">
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label for="loginEmail" class="block text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="loginEmail" class="w-full px-4 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="loginPassword" class="block text-gray-700 mb-2">Password</label>
+                        <input type="password" id="loginPassword" class="w-full px-4 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" required>
+                    </div>
+                    <div class="flex items-center justify-between mb-6">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" checked>
+                            <span class="checkmark"></span>
+                            <span class="text-sm text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" class="text-sm text-primary hover:underline">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-button font-medium transition-colors whitespace-nowrap">Login</button>
+                </form>
+                
+                <div class="mt-6">
+                    <div class="relative flex items-center justify-center">
+                        <div class="border-t border-gray-300 w-full"></div>
+                        <span class="bg-white px-3 text-sm text-gray-500 relative z-10">Or continue with</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3 mt-4">
+                        <button class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-google-fill"></i>
+                            </div>
+                            <span class="text-sm">Google</span>
+                        </button>
+                        <button class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-facebook-fill"></i>
+                            </div>
+                            <span class="text-sm">Facebook</span>
+                        </button>
+                        <button class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-apple-fill"></i>
+                            </div>
+                            <span class="text-sm">Apple</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">
+                        Don't have an account? 
+                        <a href="#" class="text-primary hover:underline" onclick="switchModal('loginModal', 'registerModal')">Register</a>
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Mobile sidebar toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
+    <!-- Register Modal -->
+    <div id="registerModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg w-full max-w-md mx-4 overflow-hidden">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold">Create an Account</h3>
+                <button class="text-gray-500 hover:text-gray-700" onclick="closeModal('registerModal')">
+                    <div class="w-6 h-6 flex items-center justify-center">
+                        <i class="ri-close-line"></i>
+                    </div>
+                </button>
+            </div>
+            <div class="p-6">
+                <form id="registerForm">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="firstName" class="block text-gray-700 mb-2">First Name</label>
+                            <input type="text" id="firstName" class="w-full px-4 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" required>
+                        </div>
+                        <div>
+                            <label for="lastName" class="block text-gray-700 mb-2">Last Name</label>
+                            <input type="text" id="lastName" class="w-full px-4 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="registerEmail" class="block text-gray-700 mb-2">Email Address</label>
+                        <input type="email" id="registerEmail" class="w-full px-4 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="registerPassword" class="block text-gray-700 mb-2">Password</label>
+                        <input type="password" id="registerPassword" class="w-full px-4 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="confirmPassword" class="block text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password" id="confirmPassword" class="w-full px-4 py-2 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" required>
+                    </div>
+                    <div class="mb-6">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" required>
+                            <span class="checkmark"></span>
+                            <span class="text-sm text-gray-600">I agree to the <a href="#" class="text-primary hover:underline">Terms of Service</a> and <a href="#" class="text-primary hover:underline">Privacy Policy</a></span>
+                        </label>
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-button font-medium transition-colors whitespace-nowrap">Register</button>
+                </form>
+                
+                <div class="mt-6">
+                    <div class="relative flex items-center justify-center">
+                        <div class="border-t border-gray-300 w-full"></div>
+                        <span class="bg-white px-3 text-sm text-gray-500 relative z-10">Or continue with</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-3 mt-4">
+                        <button class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-google-fill"></i>
+                            </div>
+                            <span class="text-sm">Google</span>
+                        </button>
+                        <button class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-facebook-fill"></i>
+                            </div>
+                            <span class="text-sm">Facebook</span>
+                        </button>
+                        <button class="flex items-center justify-center py-2 px-4 border border-gray-300 rounded-button hover:bg-gray-50 transition-colors whitespace-nowrap">
+                            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                                <i class="ri-apple-fill"></i>
+                            </div>
+                            <span class="text-sm">Apple</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">
+                        Already have an account? 
+                        <a href="#" class="text-primary hover:underline" onclick="switchModal('registerModal', 'loginModal')">Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        menuToggle.addEventListener('click', function() {
-            sidebar.classList.toggle('open');
-        });
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <div class="flex items-center">
+            <div class="w-5 h-5 flex items-center justify-center mr-2">
+                <i class="ri-check-line"></i>
+            </div>
+            <span id="toastMessage">Item added to wishlist</span>
+        </div>
+    </div>
 
-        // Close sidebar when clicking outside on mobile
-        document.addEventListener('click', function(event) {
-            if (window.innerWidth <= 768) {
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('open');
-                }
-            }
-        });
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('open');
-            }
-        });
-
-        // Smooth animations for cards
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
+    <!-- Back to Top Button -->
+    <button id="backToTopBtn" class="fixed bottom-6 right-6 w-12 h-12 bg-primary text-white rounded-full shadow-lg flex items-center justify-center opacity-0 invisible transition-all duration-300">
+        <div class="w-6 h-6 flex items-center justify-center">
+            <i class="ri-arrow-up-line"></i>
+        </div>
+    </button>
+    <!-- Scripts -->
+    <script id="navigationScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile Menu Toggle
+            const mobileMenuButton = document.getElementById('mobileMenuButton');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            mobileMenuButton.addEventListener('click', function() {
+                if (mobileMenu.classList.contains('hidden')) {
+                    mobileMenu.classList.remove('hidden');
+                } else {
+                    mobileMenu.classList.add('hidden');
                 }
             });
-        }, observerOptions);
-
-        // Observe all fade-in elements
-        document.querySelectorAll('.fade-in').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
-            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            observer.observe(el);
+            
+            // Profile Dropdown Toggle
+            const profileButton = document.getElementById('profileButton');
+            const profileMenu = document.getElementById('profileMenu');
+            
+            profileButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileMenu.classList.toggle('hidden');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileButton.contains(e.target) && !profileMenu.contains(e.target)) {
+                    profileMenu.classList.add('hidden');
+                }
+            });
         });
+    </script>
 
-        // Search functionality
-        const searchInput = document.querySelector('.search-input');
-        searchInput.addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase();
-            // In a real application, this would trigger an AJAX search
-            console.log('Searching for:', query);
-        });
-
-        // Book action handlers
-        document.querySelectorAll('.btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
+    <script id="modalScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal Functions
+            window.openModal = function(modalId) {
+                document.getElementById(modalId).classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            window.closeModal = function(modalId) {
+                document.getElementById(modalId).classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+            
+            window.switchModal = function(closeModalId, openModalId) {
+                closeModal(closeModalId);
+                openModal(openModalId);
+            }
+            
+            // Login Form Submission
+            const loginForm = document.getElementById('loginForm');
+            loginForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const action = this.textContent.trim().toLowerCase();
                 
-                // Add loading state
-                const originalText = this.innerHTML;
-                this.innerHTML = '<div class="loading"></div>';
-                this.disabled = true;
+                // Simulate login
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
                 
-                // Simulate API call
+                if (email && password) {
+                    // Show logged in state
+                    document.getElementById('loggedOutMenu').classList.add('hidden');
+                    document.getElementById('loggedInMenu').classList.remove('hidden');
+                    closeModal('loginModal');
+                    showToast('Successfully logged in!');
+                }
+            });
+            
+            // Register Form Submission
+            const registerForm = document.getElementById('registerForm');
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Simulate registration
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (email && password && password === confirmPassword) {
+                    closeModal('registerModal');
+                    openModal('loginModal');
+                    showToast('Registration successful! Please log in.');
+                }
+            });
+            
+            // Logout Button
+            const logoutButton = document.getElementById('logoutButton');
+            logoutButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Show logged out state
+                document.getElementById('loggedOutMenu').classList.remove('hidden');
+                document.getElementById('loggedInMenu').classList.add('hidden');
+                profileMenu.classList.add('hidden');
+                showToast('Successfully logged out!');
+            });
+        });
+    </script>
+
+    <script id="wishlistScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wishlist Heart Toggle
+            const wishlistHearts = document.querySelectorAll('.wishlist-heart');
+            
+            wishlistHearts.forEach(heart => {
+                heart.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    
+                    if (icon.classList.contains('ri-heart-line')) {
+                        icon.classList.remove('ri-heart-line');
+                        icon.classList.add('ri-heart-fill');
+                        this.classList.add('active');
+                        showToast('Added to your wishlist!');
+                    } else {
+                        icon.classList.remove('ri-heart-fill');
+                        icon.classList.add('ri-heart-line');
+                        this.classList.remove('active');
+                        showToast('Removed from your wishlist!');
+                    }
+                });
+            });
+            
+            // Toast Notification
+            window.showToast = function(message) {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toastMessage');
+                
+                toastMessage.textContent = message;
+                toast.classList.add('show');
+                
                 setTimeout(() => {
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                    
-                    // Show success message (in a real app, this would be a proper notification)
-                    const message = document.createElement('div');
-                    message.textContent = `${action.charAt(0).toUpperCase() + action.slice(1)} action completed!`;
-                    message.style.cssText = 'position: fixed; top: 20px; right: 20px; background: var(--success); color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: fadeIn 0.3s ease;';
-                    document.body.appendChild(message);
-                    
-                    setTimeout(() => {
-                        message.remove();
-                    }, 3000);
-                }, 1500);
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+
+    <script id="scrollScript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const backToTopBtn = document.getElementById('backToTopBtn');
+            
+            // Show/hide back to top button based on scroll position
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.remove('opacity-0', 'invisible');
+                    backToTopBtn.classList.add('opacity-100', 'visible');
+                } else {
+                    backToTopBtn.classList.remove('opacity-100', 'visible');
+                    backToTopBtn.classList.add('opacity-0', 'invisible');
+                }
+            });
+            
+            // Scroll to top when button is clicked
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
             });
         });
     </script>
