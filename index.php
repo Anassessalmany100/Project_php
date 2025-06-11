@@ -11,8 +11,8 @@ if (empty($_SESSION["username"])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BookHaven - Buy and Rent Books Online</title>
     
-    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
@@ -59,22 +59,22 @@ if (empty($_SESSION["username"])){
                     <span>Cart</span>
                 </a>
                 
-                <!-- Login/Profile Button 
+                <!-- Login/Profile Button -->
                 <div class="relative" id="profileDropdown">
                     <button id="profileButton" class="flex items-center space-x-1 text-gray-600 hover:text-primary transition-colors">
                         <div class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full">
                             <i class="ri-user-line"></i>
                         </div>
-                        <span class="hidden md:inline">Account</span>
+                        <span class="hidden md:inline">Profile</span>
                         <div class="w-4 h-4 flex items-center justify-center">
                             <i class="ri-arrow-down-s-line"></i>
                         </div>
                     </button>               
-                    Profile Dropdown 
                     <div id="profileMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden">
                         <div id="loggedOutMenu">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openModal('loginModal')">Login</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openModal('registerModal')">Register</a>
+                            <a href="info.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">information</a>
+                            <a href="logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">log out</a>
+                            <a href="delete.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Delete Account</a>
                         </div>
                         <div id="loggedInMenu" class="hidden">
                             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">My Profile</a>
@@ -84,7 +84,7 @@ if (empty($_SESSION["username"])){
                             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="logoutButton">Logout</a>
                         </div>
                     </div>
-                </div> -->
+                </div>
                 
                 <!-- Mobile Menu Button -->
                 <button id="mobileMenuButton" class="md:hidden w-10 h-10 flex items-center justify-center text-gray-600">
@@ -957,74 +957,6 @@ if (empty($_SESSION["username"])){
             });
         });
     </script>
-
-    <script id="modalScript">
-        document.addEventListener('DOMContentLoaded', function() {
-            // Modal Functions
-            window.openModal = function(modalId) {
-                document.getElementById(modalId).classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-            
-            window.closeModal = function(modalId) {
-                document.getElementById(modalId).classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-            
-            window.switchModal = function(closeModalId, openModalId) {
-                closeModal(closeModalId);
-                openModal(openModalId);
-            }
-            
-            // Login Form Submission
-            const loginForm = document.getElementById('loginForm');
-            loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Simulate login
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                if (email && password) {
-                    // Show logged in state
-                    document.getElementById('loggedOutMenu').classList.add('hidden');
-                    document.getElementById('loggedInMenu').classList.remove('hidden');
-                    closeModal('loginModal');
-                    showToast('Successfully logged in!');
-                }
-            });
-            
-            // Register Form Submission
-            const registerForm = document.getElementById('registerForm');
-            registerForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Simulate registration
-                const email = document.getElementById('registerEmail').value;
-                const password = document.getElementById('registerPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                
-                if (email && password && password === confirmPassword) {
-                    closeModal('registerModal');
-                    openModal('loginModal');
-                    showToast('Registration successful! Please log in.');
-                }
-            });
-            
-            // Logout Button
-            const logoutButton = document.getElementById('logoutButton');
-            logoutButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Show logged out state
-                document.getElementById('loggedOutMenu').classList.remove('hidden');
-                document.getElementById('loggedInMenu').classList.add('hidden');
-                profileMenu.classList.add('hidden');
-                showToast('Successfully logged out!');
-            });
-        });
-    </script>
-
     <script id="wishlistScript">
         document.addEventListener('DOMContentLoaded', function() {
             // Wishlist Heart Toggle
