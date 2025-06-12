@@ -1,3 +1,3 @@
 <?php
-$db = new PDO("mysql:local=localhost;dbname=library","root","");
+$db = new PDO("mysql:local=localhost;dbname=library","root",password:"");
 ?>
