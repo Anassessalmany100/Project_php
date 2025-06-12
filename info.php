@@ -1,18 +1,21 @@
+ <?php
+require("db.php");
+    
+    session_start();
+    if (empty($_SESSION["username"])) {
+      header("location:login.php");
+      exit;
+    }
+    ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Profile Info</title>
   <style>
-    <?php
-    session_start();
-    session_start();
-if (empty($_SESSION["username"])){
-  header("location:login.php");
-  exit;}
-  ?>
-    ?>
-    body {
+   
+    ?>body {
       font-family: Arial, sans-serif;
       background-color: #f2f4f7;
       margin: 0;
@@ -56,24 +59,26 @@ if (empty($_SESSION["username"])){
     }
   </style>
 </head>
+
 <body>
 
   <div class="profile-card">
     <div class="profile-header">
-      <h2><?=$_SESSION["name"]?> profile</h2>
+      <h2><?= $_SESSION["name"] ?> profile</h2>
     </div>
 
     <div class="profile-info">
       <h4>Full Name</h4>
-      <p><?=$_SESSION["name"]?></p>
+      <p><?= $_SESSION["name"] ?></p>
 
       <h4>Username</h4>
-      <p><?=$_SESSION["username"]?></p>
+      <p><?= $_SESSION["username"] ?></p>
 
       <h4>Email</h4>
-      <p><?=$_SESSION["email"]?></p>
+      <p><?= $_SESSION["email"] ?></p>
     </div>
   </div>
 
 </body>
+
 </html>
