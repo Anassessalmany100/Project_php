@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,8 +12,8 @@
   <div class="login-container">
     <div class="login-box">
       <div class="logo"><img src="img/img_logo/1.png" alt=""></div>
-      <h2>Library Management System</h2>
-      <p>Sign in to your administrator account</p>
+      <h2> Book Haven your online Library</h2>
+      <p>Sign in to your account</p>
       <form method="post">
         <label>Email</label>
         <input type="email" name="email" placeholder="Enter your email" required />
@@ -36,32 +35,32 @@
 </html>
 
 <?php
-  require("db.php");
-  session_start();
-$user=null;
+require("db.php");
+session_start();
+$user = null;
 if (isset($_POST["signup"])) {
   header("Location: signup.php");
   exit;
 }
-if (isset($_POST["email"]) && isset($_POST["password"])){
+if (isset($_POST["email"]) && isset($_POST["password"])) {
   $email = $_POST["email"];
   $password = $_POST["password"];
   $stmt = $db->prepare("SELECT * FROM users where email=:email");
   $stmt->execute(
     [
-    ':email'=>$email
+      ':email' => $email
     ]
   );
-  $user=$stmt->fetch(PDO::FETCH_ASSOC);
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
 }
-if ($user && $password===$user['password']){
+if ($user && $password === $user['password']) {
   $_SESSION["username"] = $user["username"];
   $_SESSION["name"] = $user["name"];
   $_SESSION["email"] = $user["email"];
   $_SESSION["password"] = $user["password"];
   header("Location: index.php");
   exit;
-}else if(isset($_POST["login"])&& !($user && $password===$user['password'])){
+} else if (isset($_POST["login"]) && !($user && $password === $user['password'])) {
   echo "<script>alert('user not found')</script>";
 }
 ?>
