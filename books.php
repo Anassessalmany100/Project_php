@@ -23,7 +23,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'add') {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Add Book - Library Management System</title>
-        <link rel="stylesheet" href="stylebo.css">
+        <link rel="stylesheet" href="css/stylebo.css">
     </head>
 
     <body>
@@ -87,7 +87,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Edit Book - Library Management System</title>
-        <link rel="stylesheet" href="stylebo.css">
+        <link rel="stylesheet" href="css/stylebo.css">
     </head>
 
     <body>
