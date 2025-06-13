@@ -126,7 +126,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
 // Handle delete book
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    $stmt = $conn->prepare('DELETE FROM books WHERE id = ?');
+    $stmt = $db->prepare('DELETE FROM books WHERE id = ?');
     $stmt->execute([$id]);
     header('Location: books.php');
     exit;
@@ -232,7 +232,7 @@ $books = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body>
     <div class="container">
         <h1>BookHaven</h1>
-        <a href="books.php?action=add" class="btn btn-primary">+ Add Book</a>
+        <a href="books.php?action=add" class="btn btn-primary">+ Add Book</a><a href="index.php" class="btn btn-primary"><---</a>
         <table class="styled-table">
             <thead>
                 <tr>

@@ -57,7 +57,7 @@ if (empty($_SESSION["username"])) {
                     <div class="w-5 h-5 flex items-center justify-center mr-1">
                         <i class="ri-heart-line"></i>
                     </div>
-                    <span>Wishlist</span>
+                    <span><a href="">Wishlist</a></span>
                 </a>
                 <a href="#" class="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors">
                     <div class="w-5 h-5 flex items-center justify-center mr-1">

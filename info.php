@@ -15,7 +15,7 @@ require("db.php");
   <title>Profile Info</title>
   <style>
    
-    ?>body {
+    body {
       font-family: Arial, sans-serif;
       background-color: #f2f4f7;
       margin: 0;
@@ -57,27 +57,35 @@ require("db.php");
       font-weight: bold;
       color: #222;
     }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 20px;
+    }
   </style>
 </head>
 
 <body>
-
   <div class="profile-card">
     <div class="profile-header">
-      <h2><?= $_SESSION["name"] ?> profile</h2>
+      <h2>Profile Information</h2>
     </div>
-
     <div class="profile-info">
-      <h4>Full Name</h4>
-      <p><?= $_SESSION["name"] ?></p>
-
-      <h4>Username</h4>
-      <p><?= $_SESSION["username"] ?></p>
-
-      <h4>Email</h4>
-      <p><?= $_SESSION["email"] ?></p>
-    </div>
-  </div>
+      <h4>Username:</h4>
+      <p><?php echo htmlspecialchars($_SESSION["username"]); ?></p>
+      <h4>Name:</h4>
+      <p><?php echo htmlspecialchars($_SESSION["name"]); ?></p>
+      <h4>Email:</h4>
+      <p><?php echo htmlspecialchars($_SESSION["email"]); ?></p>
+  <form method="post" action="editprof.php">
+    <button type="submit">Edit Profile</button>
 
 </body>
 

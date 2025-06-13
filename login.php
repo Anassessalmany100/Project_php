@@ -52,6 +52,7 @@ if (isset($_POST["email"]) && isset($_POST["password"])) {
     ]
   );
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  $_SESSION["id"] =$user["id"] ?? '';
 }
 if ($user && $password === $user['password']) {
   $_SESSION["username"] = $user["username"];
