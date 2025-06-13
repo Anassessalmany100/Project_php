@@ -1,8 +1,6 @@
 <?php
 require_once 'db.php';
 
-
-// Handle add book form submission
 if (isset($_GET['action']) && $_GET['action'] === 'add') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $title = $_POST['title'] ?? '';
@@ -56,7 +54,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'add') {
     exit;
 }
 
-// Handle edit book
 if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $stmt = $db->prepare('SELECT * FROM books WHERE id = ?');
@@ -123,7 +120,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && isset($_GET['id'])) 
     exit;
 }
 
-// Handle delete book
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
     $stmt = $db->prepare('DELETE FROM books WHERE id = ?');
@@ -132,7 +128,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])
     exit;
 }
 
-// Fetch books
+
 $stmt = $db->prepare('SELECT * FROM books ORDER BY created_at DESC');
 $stmt->execute();
 $books = $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -32,16 +32,14 @@ if (empty($_SESSION["username"])) {
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
             <a href="#" class="text-2xl font-['Pacifico'] text-primary">BookHaven</a>
 
-            <!-- Desktop Navigation -->
             <nav class="hidden md:flex items-center space-x-6">
                 <a href="#" class="text-primary font-medium">Home</a>
                 <a href="#" class="text-gray-600 hover:text-primary transition-colors">Browse Books</a>
                 <a href="#" class="text-gray-600 hover:text-primary transition-colors">New Arrivals</a>
                 <a href="#" class="text-gray-600 hover:text-primary transition-colors">Bestsellers</a>
-                <a href="books.php" class="text-gray-600 hover:text-primary transition-colors">Manage Books</a>
+                <a href="books.php" class="text-gray-600 hover:text-primary transition-colors">Menage Books</a>
             </nav>
 
-            <!-- Search Bar -->
             <div class="hidden md:flex relative w-1/3">
                 <input type="text" placeholder="Search for books, authors..."
                     class="w-full py-2 px-4 pr-10 border border-gray-300 rounded-button focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
@@ -51,7 +49,6 @@ if (empty($_SESSION["username"])) {
                 </div>
             </div>
 
-            <!-- User Actions -->
             <div class="flex items-center space-x-4">
                 <a href="#" class="hidden md:flex items-center text-gray-600 hover:text-primary transition-colors">
                     <div class="w-5 h-5 flex items-center justify-center mr-1">
@@ -66,7 +63,6 @@ if (empty($_SESSION["username"])) {
                     <span>Cart</span>
                 </a>
 
-                <!-- Login/Profile Button -->
                 <div class="relative" id="profileDropdown">
                     <button id="profileButton"
                         class="flex items-center space-x-1 text-gray-600 hover:text-primary transition-colors">
@@ -98,7 +94,6 @@ if (empty($_SESSION["username"])) {
                     </div>
                 </div>
 
-                <!-- Mobile Menu Button -->
                 <button id="mobileMenuButton"
                     class="md:hidden w-10 h-10 flex items-center justify-center text-gray-600">
                     <i class="ri-menu-line text-xl"></i>
@@ -106,7 +101,6 @@ if (empty($_SESSION["username"])) {
             </div>
         </div>
 
-        <!-- Mobile Search and Navigation -->
         <div id="mobileMenu" class="md:hidden hidden px-4 py-3 bg-white border-t border-gray-100">
             <div class="relative mb-3">
                 <input type="text" placeholder="Search for books, authors..."

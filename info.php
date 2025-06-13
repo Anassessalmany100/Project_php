@@ -69,10 +69,15 @@ require("db.php");
       font-size: 16px;
       margin-top: 20px;
     }
+    a{
+      text-decoration: none;
+      color: white;
+    }
   </style>
 </head>
 
 <body>
+  <a href="index.php"><button style="width: 6%;"><----</button></a>
   <div class="profile-card">
     <div class="profile-header">
       <h2>Profile Information</h2>

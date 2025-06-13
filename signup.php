@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -25,54 +24,6 @@
   height: 90%;
   object-fit: cover;
   border-radius: 50%;
-}#signup {
-  max-width: 400px;
-  margin: 40px auto;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 4px 24px rgba(44,62,80,0.10);
-  padding: 36px 28px;
-}
-form {
-  display: flex;
-  flex-direction: column;
-}
-label {
-  margin-top: 12px;
-  margin-bottom: 4px;
-  color: #2C3E50;
-  font-weight: 500;
-  letter-spacing: 0.2px;
-}
-input[type="text"], input[type="email"], input[type="password"] {
-  padding: 10px 12px;
-  border: 1px solid #cfd8dc;
-  border-radius: 5px;
-  margin-bottom: 8px;
-  font-size: 1rem;
-  background: #f7fafd;
-  transition: border 0.2s, box-shadow 0.2s;
-}
-input:focus {
-  border: 1.5px solid #3366cc;
-  box-shadow: 0 0 0 2px #3366cc22;
-  outline: none;
-}
-button {
-  margin-top: 16px;
-  padding: 10px 0;
-  border-radius: 6px;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  background: linear-gradient(90deg, #3366cc 60%, #254a99 100%);
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
-}
-button:hover {
-  background: linear-gradient(90deg, #254a99 60%, #3366cc 100%);
-  transform: translateY(-2px) scale(1.03);
 }
   </style>
 </head>
@@ -80,14 +31,14 @@ button:hover {
 <body>
   <div id="signup">
     <div class="logo"><img src="img/img_logo/1.png" alt=""></div>
-      <h2>Book Haven your online Library</h2>
+      <h2>Library Management System</h2>
       <p>Create an account to access the library</p>
     <form action="" method="post">
       <label for="name">Name</label>
-      <input type="text" name="name" id="name" placeholder="Enter your Name" required>
+      <input type="text" name="name" id="name" placeholder="Enter your Name">
 
       <label for="username">Username</label>
-      <input type="text" name="username" id="username" placeholder="Enter your Username"required>
+      <input type="text" name="username" id="username" placeholder="Enter your Username">
 
       <label for="email">Email</label>
       <input type="email" name="email" id="email" placeholder="Enter your Email">
@@ -102,24 +53,6 @@ button:hover {
       <button type="submit" name="login">Login</button>
     </form>
   </div>
-  <script>
-document.querySelector('form').addEventListener('submit', function(e) {
-  // Get all inputs
-  const inputs = this.querySelectorAll('input[required], input[type="email"], input[type="password"]');
-  for (let input of inputs) {
-    if (!input.value.trim()) {
-      input.focus();
-      e.preventDefault();
-      return false;
-    }
-    if (input.type === "email" && !input.value.match(/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-      input.focus();
-      e.preventDefault();
-      return false;
-    }
-  }
-});
-</script>
 </body>
 
 </html>
